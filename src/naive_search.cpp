@@ -5,35 +5,62 @@
 
 using namespace std;
 
-vector<int> naiveSearch(const string& txt, const string& pat, const vector<int>& o){
-    vector<int> occurrence;
-    size_t len_t = txt.length();
-    size_t len_p = pat.length();
-    bool match = true;
-    for(int i = 0; i < len_t - len_p + 1; i++){
-        for(int j = 0; j < len_p; j++){
-            if(txt[i + j] != pat[j])
-                match = false;
-                break;
-            if(match)
-                occurrence.push_back(i);
+class OccurrenceFinder {
+private:
+    string text;
+public:
+    OccurrenceFinder(const string& filename) {
+        ifstream fileIn(filename);
+        if (!fileIn.is_open()) {
+            cerr << "Error in opening: " << filename << endl;
+            exit(EXIT_FAILURE);
+        }
+        text.assign((istreambuf_iterator<char>(fileIn)), istreambuf_iterator<char>());
+        fileIn.close();
+    }
+
+    vector<int> naiveSearch(const string& pattern) {
+        vector<int> occurrence;
+        size_t len_t = text.length();
+        size_t len_p = pattern.length();
+        
+        for (size_t i = 0; i <= len_t - len_p; i++) {
+            bool match = true;
+            for (size_t j = 0; j < len_p; j++) {
+                if (text[i + j] != pattern[j]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                occurrence.push_back(i); 
+            }
+        }
+        return occurrence;
+    }
+    void display_output(const vector<int> o){
+        if(o.empty()){
+            cout << endl;
+        } else {
+            for (int index : o){
+                cout << " " << index;
+            }
+            cout << endl;
         }
     }
-    return occurrence;
-}
+};
 
-int main(){
-    ifstream fileIn;
-    fileIn.open("sample.txt");
-    if(!fileIn.is_open()){
-        cerr << "Error in opening: sample.txt" << endl;
-        return -1;  
-    }
-    string text((istreambuf_iterator<char>(fileIn)), istreambuf_iterator<char>());
-    fileIn.close();
+int main(int argc, char* argv[]) {
+    if(argc < 3) return 1;
+    OccurrenceFinder finder(argv[1]);
+    string pattern(argv[2]);
+    vector<int> occurrences = finder.naiveSearch(pattern);
+    finder.display_output(occurrences);
     return 0;
 }
 
-//Best case: O(t)  Worst case: O(p*(t-p+1))
-//Where ‘p’ is length of pattern and ‘t’ is length of text.
-//Space complexities: O(1), since no extra space is required.
+// Best case: O(t)  Worst case: O(p*(t-p+1))
+// Where ‘p’ is length of pattern and ‘t’ is length of text.
+// Space complexities: O(1), since no extra space is required.
+// argc -> argument counter, argv -> c style strings (char pointers)
+// arguments corresponding to command line: argv[0] -> file name, argv[1] = text, argv[2] = pattern
