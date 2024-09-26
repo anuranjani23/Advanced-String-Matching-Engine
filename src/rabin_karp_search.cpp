@@ -7,7 +7,6 @@
 #define prime 113
 
 using namespace std;
-
 class OccurrenceFinder {
 private:
     string text;
@@ -84,7 +83,7 @@ int main(int argc, char* argv[]) {
 // Pre-processing time: O(p), Compute Hashing in: O(1)
 // Best and Average case: O(p+t), Worst case: O(p*(t-p+1))
 // Where ‘p’ is length of pattern and ‘t’ is length of text.
-// Space complexities: O(1)
+// Space complexities: O(1) ->
 // since pre-processing involves hashing of pattern which does not require extra space.
 // argc -> argument counter, argv -> c style strings (char pointers)
 // arguments corresponding to command line: argv[0] -> file name, argv[1] = text, argv[2] = pattern
