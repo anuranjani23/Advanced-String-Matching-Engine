@@ -33,5 +33,3 @@ vector<int> n_array(const string& s){
     reverse(rev_s.begin(), rev_s.end());
     return z_array(rev_s);
 }
-
-vector<int> 

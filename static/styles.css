@@ -1,1 +1,92 @@
+body {
+    font-family: 'Roboto', sans-serif;       /* Set font to Roboto */
+    background-color: #f7f7f7;               /* Light grey background */
+    color: #333;                             /* Dark grey text color */
+    margin: 0;                               /* Remove default margin */
+    padding: 45px;                           /* Add padding around the body */
+    text-align: center;                      /* Center text alignment */
+}
 
+.container {
+    max-width: 450px;                        /* Max width for the container */
+    margin: auto;                            /* Center the container */
+    background: #fff;                        /* White background for the container */
+    padding: 30px;                           /* Inner padding */
+    border-radius: 10px;                      /* Rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+h1 {
+    color: #2c3e50;                          /* Dark blue for main heading */
+}
+
+h2 {
+    color: #34495e;                          /* Slightly lighter blue for subheading */
+}
+
+input[type="text"],
+input[type="file"],
+textarea {
+    width: 85%;                             /* Full width input */
+    padding: 10px;                           /* Padding inside inputs */
+    margin: 15px 0;                          /* Margin above and below */
+    border: 1px solid #ccc;                  /* Light grey border */
+    border-radius: 5px;                      /* Rounded corners */
+}
+
+input[type="text"]:focus,
+input[type="file"]:focus {
+    border-color: #3498db;                   /* Blue border on focus */
+}
+
+.buttons {
+    display: flex;                           /* Flexbox for buttons */
+    flex-wrap: wrap;                         /* Wrap buttons to the next line if needed */
+    gap: 15px;                               /* Space between buttons */
+    justify-content: center; 
+}
+
+button {
+    background: #3498db;                     /* Primary button color */
+    color: #fff;                             /* White text */
+    padding: 10px 15px;                      /* Padding inside buttons */
+    border: none;                            /* No border */
+    border-radius: 5px;                      /* Rounded corners */
+    cursor: pointer;                         /* Pointer cursor on hover */
+    transition: background-color 0.3s;       /* Smooth transition for hover */
+}
+
+button:hover {
+    background: #2980b9;                     /* Darker shade on hover */
+}
+
+.flash {
+    padding: 10px;                           /* Padding for flash messages */
+    border-radius: 5px;                      /* Rounded corners */
+    margin-bottom: 20px;                     /* Space below flash messages */
+}
+
+.flash li {
+    list-style: none;                        /* No list style for flash messages */
+}
+
+.result {
+    background: #e0f7fa;                     /* Light blue background for results */
+    padding: 15px;                           /* Padding inside results */
+    border-radius: 5px;                      /* Rounded corners */
+    margin-top: 20px;                        /* Space above results */
+}
+
+textarea {
+    resize: none;                            /* Prevent resizing of textarea */
+    border-radius: 10px;                      /* Rounded corners */
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 24px;                     /* Smaller font size for h1 on small screens */
+    }
+    button {
+        width: 100%;                         /* Full width buttons on small screens */
+    }
+}

@@ -1,13 +1,49 @@
 <!DOCTYPE html>
-<html lang = "en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Advanced String Matching Engine</title>
-    </head>
-    <body>
-        <div class = "container">
+<html lang="en">
 
-            
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced String Matching Engine</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Advanced String Matching Engine</h1>
+
+        <form method="POST" enctype="multipart/form-data">
+            <div>
+                <label for="textfile">Upload Text File:</label>
+                <input type="file" name="textfile" id="textfile" accept=".txt" required>
+            </div>
+
+            <div>
+                <label for="patterns">Enter Patterns (comma-separated):</label>
+                <input type="text" name="patterns" id="patterns" placeholder="e.g., pattern1, pattern2" required>
+            </div>
+
+            <div class="buttons">
+                <button type="submit" name="naive">Naive Search</button>
+                <button type="submit" name="rabin">Rabin-Karp Search</button>
+                <button type="reset">Reset Form</button>
+            </div>
+        </form>
+
+        <div class="result">
+            <h2>Uploaded Text:</h2>
+            <textarea readonly>{{ text }}</textarea>
         </div>
-    </body>
+
+        <div class="result">
+            <h2>Search Results ({{ algorithm }})</h2>
+            <p>Time Taken: {{ times }} seconds</p>
+            <ul>
+                <!-- Dynamic content goes here -->
+            </ul>
+        </div>
+    </div>
+</body>
+
 </html>
