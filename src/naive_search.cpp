@@ -38,11 +38,12 @@ public:
         }
         return occurrence;
     }
-    void display_output(const vector<int> o){
-        if(o.empty()){
+    void display_output(const string& pattern, const vector<int>& occurrences) {
+        cout << pattern << ":";
+        if (occurrences.empty()) {
             cout << endl;
         } else {
-            for (int index : o){
+            for (int index : occurrences) {
                 cout << " " << index;
             }
             cout << endl;
@@ -55,7 +56,7 @@ int main(int argc, char* argv[]) {
     OccurrenceFinder finder(argv[1]);
     string pattern(argv[2]);
     vector<int> occurrences = finder.naiveSearch(pattern);
-    finder.display_output(occurrences);
+    finder.display_output(pattern, occurrences);
     return 0;
 }
 

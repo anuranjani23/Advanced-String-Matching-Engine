@@ -12,6 +12,15 @@
 <body>
     <div class="container">
         <h1>Advanced String Matching Engine</h1>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul class="flash">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
 
         <form method="POST" enctype="multipart/form-data">
             <div>
@@ -36,13 +45,23 @@
             <textarea readonly>{{ text }}</textarea>
         </div>
 
+        {% if results %}
         <div class="result">
             <h2>Search Results ({{ algorithm }})</h2>
             <p>Time Taken: {{ times }} seconds</p>
             <ul>
-                <!-- Dynamic content goes here -->
+                {% for pattern, positions in results.items() %}
+                <li><strong>{{ pattern }}</strong>:
+                    {% if positions %}
+                    Positions: {{ positions | join(', ') }}
+                    {% else %}
+                    Not Found
+                    {% endif %}
+                </li>
+                {% endfor %}
             </ul>
         </div>
+        {% endif %}
     </div>
 </body>
 

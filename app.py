@@ -7,17 +7,17 @@ import time
 app = Flask(__name__)
 app.secret_key = 'key8888' 
 app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['BUILD_FOLDER'] = 'build'
+app.config['BUILD_FOLDER'] = 'bin'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB upload limit
 
-# Ensure upload and build directories exist
+# Ensuring that the upload and build directories exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['BUILD_FOLDER'], exist_ok=True)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # Handle file upload
+        # Handle the file uploads
         if 'textfile' not in request.files:
             flash('No file part')
             return redirect(request.url)
@@ -30,18 +30,18 @@ def index():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
 
-            # Read the text content
+            # Reading the text content
             with open(filepath, 'r', encoding='utf-8') as f:
                 text_content = f.read()
 
-            # Handle pattern input
+            # Handling the pattern input
             patterns = request.form.get('patterns', '')
             patterns = [p.strip() for p in patterns.split(',') if p.strip()]
             if not patterns:
                 flash('No patterns provided')
                 return redirect(request.url)
 
-            # Determine which button was pressed
+            # Determining which button was pressed
             search_method = None
             if 'naive' in request.form:
                 search_method = 'naive'
@@ -59,15 +59,23 @@ def index():
                         end_time = time.time()
                         calc_time += end_time - start_time
                         output = proc.stdout.strip()
-                        if output:
-                            positions = list(map(int, output.split(":")[1].split()))
-                            results[pattern] = positions
+
+                        if output and ':' in output:
+                            # Safely handle splitting the line
+                            try:
+                                positions = list(map(int, output.split(":")[1].split()))
+                                results[pattern] = positions
+                            except ValueError:
+                                # Handle if positions are not integers or output format is invalid
+                                results[pattern] = []
                         else:
+                            # If no output or no colon, assume no match found
                             results[pattern] = []
+
                     except subprocess.CalledProcessError as e:
                         flash(f'Error running Naive Search for pattern "{pattern}": {e.stderr}')
                         results[pattern] = []
-                
+
             elif search_method == 'rabin':
                 executable = os.path.join(app.config['BUILD_FOLDER'], 'rabin_karp_search')
                 patterns_str = ','.join(patterns)
@@ -78,15 +86,22 @@ def index():
                     end_time = time.time()
                     calc_time = end_time - start_time
                     output = proc.stdout.strip()
-                    if output:
-                        for line in output.split('\n'):
-                            print(line)
-                            pat, pos_str = line.split(':')
-                            positions = list(map(int, pos_str.strip().split()))
-                            results[pat] = positions
-                    else:
-                        for pat in patterns:
-                            results[pat] = []
+                    
+                    # Process output line by line
+                    for line in output.split('\n'):
+                        if ':' in line:
+                            try:
+                                pat, pos_str = line.split(':')
+                                positions = list(map(int, pos_str.strip().split()))
+                                results[pat] = positions
+                            except ValueError:
+                                # Handle cases where position string is malformed
+                                results[pat] = []
+                        else:
+                            # If no colon, assume no match found
+                            for pat in patterns:
+                                results[pat] = []
+
                 except subprocess.CalledProcessError as e:
                     flash(f'Error running Rabin-Karp: {e.stderr}')
                     for pat in patterns:
