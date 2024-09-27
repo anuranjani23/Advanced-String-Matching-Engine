@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet'>
     <title>Advanced String Matching Engine</title>
     <link rel="stylesheet" href="../static/styles.css">
 </head>
@@ -24,12 +25,16 @@
 
         <form method="POST" enctype="multipart/form-data">
             <div>
-                <label for="textfile">Upload Text File:</label>
+                <label for="textfile">
+                    <h3>Upload Text File:</h3>
+                </label>
                 <input type="file" name="textfile" id="textfile" accept=".txt" required>
             </div>
 
             <div>
-                <label for="patterns">Enter Patterns (comma-separated):</label>
+                <label for="patterns">
+                    <h3>Enter Patterns (comma-separated):</h3>
+                </label>
                 <input type="text" name="patterns" id="patterns" placeholder="e.g., pattern1, pattern2" required>
             </div>
 
@@ -47,21 +52,22 @@
 
         {% if results %}
         <div class="result">
-            <h2>Search Results ({{ algorithm }})</h2>
-            <p>Time Taken: {{ times }} seconds</p>
-            <ul>
-                {% for pattern, positions in results.items() %}
-                <li><strong>{{ pattern }}</strong>:
-                    {% if positions %}
-                    Positions: {{ positions | join(', ') }}
-                    {% else %}
-                    Not Found
-                    {% endif %}
-                </li>
-                {% endfor %}
-            </ul>
+            <h2>Search Results for {{ algorithm }}:</h2>
+            <p><strong>Time Taken:</strong> {{ times }} seconds</p>
+            {% for pattern, positions in results.items() %}
+            <div>
+                <strong>{{ pattern }}</strong>
+                {% if positions %}
+                Found at Position: <strong>{{ positions | join(', ') }}</strong>
+                {% else %}
+                <strong>Not Found</strong>
+                {% endif %}
+            </div>
+            {% endfor %}
         </div>
         {% endif %}
+
+
     </div>
 </body>
 

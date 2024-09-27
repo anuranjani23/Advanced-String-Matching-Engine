@@ -16,6 +16,12 @@ os.makedirs(app.config['BUILD_FOLDER'], exist_ok=True)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    # Initialize variables to avoid 'undefined' errors in the template
+    results = {}
+    calc_time = 0
+    search_method = ""
+    patterns = ""
+
     if request.method == 'POST':
         # Handle the file uploads
         if 'textfile' not in request.files:
@@ -44,12 +50,12 @@ def index():
             # Determining which button was pressed
             search_method = None
             if 'naive' in request.form:
-                search_method = 'naive'
+                search_method = 'Naive'
             elif 'rabin' in request.form:
-                search_method = 'rabin'
+                search_method = 'Rabin'
 
             results, calc_time = {}, 0
-            if search_method == 'naive':
+            if search_method == 'Naive':
                 executable = os.path.join(app.config['BUILD_FOLDER'], 'naive_search')
                 for pattern in patterns:
                     try:
@@ -60,16 +66,10 @@ def index():
                         calc_time += end_time - start_time
                         output = proc.stdout.strip()
 
-                        if output and ':' in output:
-                            # Safely handle splitting the line
-                            try:
-                                positions = list(map(int, output.split(":")[1].split()))
-                                results[pattern] = positions
-                            except ValueError:
-                                # Handle if positions are not integers or output format is invalid
-                                results[pattern] = []
+                        if output:
+                            positions = list(map(int, output.split(":")[1].split()))
+                            results[pattern] = positions
                         else:
-                            # If no output or no colon, assume no match found
                             results[pattern] = []
 
                     except subprocess.CalledProcessError as e:
@@ -87,29 +87,18 @@ def index():
                     calc_time = end_time - start_time
                     output = proc.stdout.strip()
                     
-                    # Process output line by line
-                    for line in output.split('\n'):
-                        if ':' in line:
-                            try:
-                                pat, pos_str = line.split(':')
-                                positions = list(map(int, pos_str.strip().split()))
-                                results[pat] = positions
-                            except ValueError:
-                                # Handle cases where position string is malformed
-                                results[pat] = []
-                        else:
-                            # If no colon, assume no match found
-                            for pat in patterns:
-                                results[pat] = []
+                    if output:
+                        positions = list(map(int, output.split(":")[1].split()))
+                        results[pattern] = positions
+                    else:
+                        results[pattern] = []
 
                 except subprocess.CalledProcessError as e:
                     flash(f'Error running Rabin-Karp: {e.stderr}')
                     for pat in patterns:
                         results[pat] = []
 
-            return render_template('index.html', text=text_content, patterns=",".join(patterns), results=results, times=calc_time, algorithm=search_method.upper())
+            return render_template('index.html', text=text_content, patterns=",".join(patterns), results=results, times=calc_time, algorithm=search_method)
 
-    return render_template('index.html')
-
-if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    # Render the template for GET request or empty POST request
+    return render_template('index.html', results=results, times=calc_time, algorithm=search_method, patterns=patterns)

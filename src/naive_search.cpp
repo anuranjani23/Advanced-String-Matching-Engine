@@ -39,7 +39,7 @@ public:
         return occurrence;
     }
     void display_output(const string& pattern, const vector<int>& occurrences) {
-        cout << pattern << ":";
+        cout << pattern << ": ";
         if (occurrences.empty()) {
             cout << endl;
         } else {
