@@ -1,2 +1,2 @@
 # Advanced-String-Matching-Engine
-A DSA course project implementing advanced string matching algorithms.
+A project based on implementations of advanced string matching algorithms.
