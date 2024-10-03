@@ -28,7 +28,13 @@
                 <label for="textfile">
                     <h3>Upload Text File:</h3>
                 </label>
+                {% if uploaded_file %}
+                <input type="file" name="textfile" id="textfile" accept=".txt" disabled>
+                <input type="hidden" name="uploaded_file" value="{{ uploaded_file }}">
+                <h4>Uploaded File: {{ uploaded_file }}</h4>
+                {% else %}
                 <input type="file" name="textfile" id="textfile" accept=".txt" required>
+                {% endif %}
             </div>
 
             <div>
@@ -42,10 +48,16 @@
                 <button type="submit" name="naive">Naive Search</button>
                 <button type="submit" name="rabin">Rabin-Karp Search</button>
                 <button type="submit" name="boyer">Boyer-Moore Search</button>
-                <button type="reset">Reset Form</button>
+                <button type="button" onclick="resetPage()">Reset Page</button>
             </div>
         </form>
-
+        <script>
+            function resetPage() {
+                document.getElementById('patterns').value = '';
+                document.querySelectorAll('.flash').forEach(flash => flash.innerHTML = '');
+            }
+        </script>
+        
         <div class="result">
             <h2>Uploaded Text:</h2>
             <textarea readonly>{{ text }}</textarea>
@@ -59,7 +71,7 @@
             <div>
                 <strong>{{ pattern }}</strong>
                 {% if positions %}
-                Found at Position: <strong>{{ positions | join(', ') }}</strong>
+                found at Position: <strong>{{ positions | join(', ') }}</strong>
                 {% else %}
                 <strong>Not Found</strong>
                 {% endif %}
