@@ -1,3 +1,5 @@
+// ->> Scroll to the bottom for the code and algorithm specifics.
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -35,13 +37,12 @@ public:
 
         for (int i = 0; i < len_p - 1; i++)
         {
-            h = (h * num_of_char) % prime; // h = d^(len_p - 1)
+            h = (h * num_of_char) % prime; 
         }
         for (int i = 0; i < len_p; i++)
         {
             p_hash = (num_of_char * p_hash + pattern[i]) % prime;
             t_hash = (num_of_char * t_hash + text[i]) % prime;
-            // hash value calculation for pattern and text
         }
         for (int i = 0; i <= len_t - len_p; i++)
         {
@@ -63,10 +64,7 @@ public:
             }
             if (i < len_t - len_p)
             {
-                // slide over next window if hash values don't match
                 t_hash = (num_of_char * (t_hash - text[i] * h) + text[i + len_p]) % prime;
-
-                // if hash value of text becomes negative
                 if (t_hash < 0)
                     t_hash += prime;
             }
@@ -102,10 +100,18 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+
+/* h = d^(len_p - 1) -> used to remove the contribution of the "leftmost" character of the 
+current window of the text when sliding the window over by one character. */ 
+// hash = (num_of_char * hash + str[i])%prime -> hash value calculation for pattern and text.
+/* hash = (num_of_char * (hash - str[i] * h) + str[i + len_p])%prime; -> slide over next window 
+if hash values don't match. */ 
+
+
+
 // Pre-processing time: O(p), Compute Hashing in: O(1)
 // Best and Average case: O(p+t), Worst case: O(p*(t-p+1))
 // Where ‘p’ is length of pattern and ‘t’ is length of text.
-// Space complexities: O(1) ->
-// since pre-processing involves hashing of pattern which does not require extra space.
+// Space complexities: O(1) -> since pre-processing involves hashing of pattern which does not require extra space.
 // argc -> argument counter, argv -> c style strings (char pointers)
 // arguments corresponding to command line: argv[0] -> file name, argv[1] = text, argv[2] = pattern
