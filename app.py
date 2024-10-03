@@ -1,3 +1,5 @@
+# ->> Scroll to the bottom for the code and algorithm specifics.
+
 import os
 from flask import Flask, render_template, request, redirect, flash
 from werkzeug.utils import secure_filename
@@ -125,10 +127,11 @@ def index():
 if __name__ == "__main__":
     app.run(debug=True)
 
-# Ensuring that the upload and build directories exist
-# Initialize variables to avoid 'undefined' errors in the template
-# Handle the file uploads
-# Reading the text content
-# Handling the pattern input
-# Determining which button was pressed
-# Render the template for GET request or empty POST request
+# Ensuring that the upload and build directories exist.
+# Initialize variables to avoid 'undefined' errors in the template.
+# Handle the file uploads.
+# Reusing the previously uploaded files, if no new one is added.
+# Reading the text content.
+# Handling the pattern input.
+# Determining which button was pressed.
+# Render the template for GET request or empty POST request and retaining the uploaded file reference.
