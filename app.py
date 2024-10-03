@@ -19,19 +19,21 @@ def index():
     calc_time = 0
     search_method = ""
     patterns = ""
+    uploaded_file = None
 
     if request.method == 'POST':
-        if 'textfile' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['textfile']
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file:
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
+            if 'textfile' in request.files and request.files['textfile'].filename != '':
+                file = request.files['textfile']
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                uploaded_file = filename  
+            elif 'uploaded_file' in request.form and request.form['uploaded_file'] != '':
+                uploaded_file = request.form['uploaded_file']
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file)
+            else:
+                flash('No file uploaded or selected.')
+                return redirect(request.url)
 
             
             with open(filepath, 'r', encoding='utf-8') as f:
@@ -115,10 +117,13 @@ def index():
                         flash(f'Error running Boyer-Moore Search for pattern "{pattern}": {e.stderr}')
                         results[pattern] = []
 
-            return render_template('index.html', text=text_content, patterns=",".join(patterns), results=results, times=calc_time, algorithm=search_method)
+            return render_template('index.html', text=text_content, patterns=",".join(patterns), results=results, times=calc_time, 
+                                   algorithm=search_method, uploaded_file=uploaded_file)
 
     return render_template('index.html', results=results, times=calc_time, algorithm=search_method, patterns=patterns)
 
+if __name__ == "__main__":
+    app.run(debug=True)
 
 # Ensuring that the upload and build directories exist
 # Initialize variables to avoid 'undefined' errors in the template
