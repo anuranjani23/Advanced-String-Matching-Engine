@@ -98,6 +98,28 @@ def index():
                     for pat in patterns:
                         results[pat] = []
 
+            elif search_method == 'boyer':
+                executable = os.path.join(app.config['BUILD_FOLDER'], 'boyer_moore_search')
+                patterns_str = ','.join(patterns)
+                try:
+                    start_time = time.time()
+                    proc = subprocess.run([executable, filepath, patterns_str],
+                                          capture_output=True, text=True, check=True)
+                    end_time = time.time()
+                    calc_time = end_time - start_time
+                    output = proc.stdout.strip()
+                    
+                    if output:
+                        positions = list(map(int, output.split(":")[1].split()))
+                        results[pattern] = positions
+                    else:
+                        results[pattern] = []
+
+                except subprocess.CalledProcessError as e:
+                    flash(f'Error running Boyer-Moore: {e.stderr}')
+                    for pat in patterns:
+                        results[pat] = []
+
             return render_template('index.html', text=text_content, patterns=",".join(patterns), results=results, times=calc_time, algorithm=search_method)
 
     # Render the template for GET request or empty POST request

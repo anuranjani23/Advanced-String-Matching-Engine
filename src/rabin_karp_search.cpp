@@ -7,13 +7,17 @@
 #define prime 113
 
 using namespace std;
-class OccurrenceFinder {
+class OccurrenceFinder
+{
 private:
     string text;
+
 public:
-    OccurrenceFinder(const string& filename) {
+    OccurrenceFinder(const string &filename)
+    {
         ifstream fileIn(filename);
-        if (!fileIn.is_open()) {
+        if (!fileIn.is_open())
+        {
             cerr << "Error in opening: " << filename << endl;
             exit(EXIT_FAILURE);
         }
@@ -21,50 +25,65 @@ public:
         fileIn.close();
     }
 
-    vector<int> RabinKarpSearch(const string& pattern){
+    vector<int> RabinKarpSearch(const string &pattern)
+    {
         size_t len_t = text.length();
         size_t len_p = pattern.length();
         int p_hash = 0, t_hash = 0;
         int h = 1;
         vector<int> occurrence;
-        
-        for(int i = 0; i < len_p - 1; i++){
-            h = (h*num_of_char)%prime; //h = d^(len_p - 1)
+
+        for (int i = 0; i < len_p - 1; i++)
+        {
+            h = (h * num_of_char) % prime; // h = d^(len_p - 1)
         }
-        for(int i = 0; i < len_p; i++){
-            p_hash = (num_of_char*p_hash + pattern[i])%prime;
-            t_hash = (num_of_char*t_hash + text[i])%prime;
-            //hash value calculation for pattern and text
+        for (int i = 0; i < len_p; i++)
+        {
+            p_hash = (num_of_char * p_hash + pattern[i]) % prime;
+            t_hash = (num_of_char * t_hash + text[i]) % prime;
+            // hash value calculation for pattern and text
         }
-        for(int i = 0; i <= len_t - len_p; i++){
-            if(p_hash == t_hash){
+        for (int i = 0; i <= len_t - len_p; i++)
+        {
+            if (p_hash == t_hash)
+            {
                 bool match = true;
-                for(int j = 0; j < len_p; j++){
-                    if(text[i+j] != pattern[j]){
+                for (int j = 0; j < len_p; j++)
+                {
+                    if (text[i + j] != pattern[j])
+                    {
                         match = false;
                         break;
                     }
                 }
-                if(match){
+                if (match)
+                {
                     occurrence.push_back(i);
                 }
             }
-            if(i < len_t - len_p){
-                //slide over next window if hash values don't match
-                t_hash = (num_of_char*(t_hash - text[i]*h) + text[i + len_p])%prime;
-                
-                //if hash value of text becomes negative
-                if(t_hash < 0) t_hash += prime;
+            if (i < len_t - len_p)
+            {
+                // slide over next window if hash values don't match
+                t_hash = (num_of_char * (t_hash - text[i] * h) + text[i + len_p]) % prime;
+
+                // if hash value of text becomes negative
+                if (t_hash < 0)
+                    t_hash += prime;
             }
         }
         return occurrence;
     }
-    void display_output(const string& pattern, const vector<int>& occurrences) {
+    void display_output(const string &pattern, const vector<int> &occurrences)
+    {
         cout << pattern << ": ";
-        if (occurrences.empty()) {
+        if (occurrences.empty())
+        {
             cout << endl;
-        } else {
-            for (int index : occurrences) {
+        }
+        else
+        {
+            for (int index : occurrences)
+            {
                 cout << " " << index;
             }
             cout << endl;
@@ -72,8 +91,10 @@ public:
     }
 };
 
-int main(int argc, char* argv[]) {
-    if(argc < 3) return 1;
+int main(int argc, char *argv[])
+{
+    if (argc < 3)
+        return 1;
     OccurrenceFinder finder(argv[1]);
     string pattern(argv[2]);
     vector<int> occurrences = finder.RabinKarpSearch(pattern);

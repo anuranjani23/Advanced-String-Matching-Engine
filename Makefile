@@ -7,7 +7,7 @@ CXX := g++
 CXXFLAGS := -O2 -std=c++14
 
 # Targets
-TARGETS := naive_search rabin_karp_search
+TARGETS := naive_search rabin_karp_search boyer_moore_search
 
 # Default target: build all executables
 all: bin $(TARGETS)
@@ -16,13 +16,17 @@ all: bin $(TARGETS)
 bin:
 	mkdir -p bin
 
+# Rule to build naive_search executable
+naive_search: src/naive_search.cpp | bin
+	$(CXX) $(CXXFLAGS) $< -o bin/naive_search
+
 # Rule to build rabin_karp_search executable
 rabin_karp_search: src/rabin_karp_search.cpp | bin
 	$(CXX) $(CXXFLAGS) $< -o bin/rabin_karp_search
 
-# Rule to build naive_search executable
-naive_search: src/naive_search.cpp | bin
-	$(CXX) $(CXXFLAGS) $< -o bin/naive_search
+# Rule to build boyer_moore_search executable
+boyer_moore_search: src/boyer_moore_search.cpp | bin
+	$(CXX) $(CXXFLAGS) $< -o bin/boyer_moore_search
 
 # Clean target to remove executables
 clean:

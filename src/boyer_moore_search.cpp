@@ -1,35 +1,217 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
-#include <unordered_map>
 #include <string>
-#include <algorithm>
+#include <unordered_map>
 
 using namespace std;
+class BoyerMoore
+{
+private:
+    string pattern;
+    unordered_map<char, int> amap;  
+    vector<vector<int>> bad_char;
+    vector<int> big_l, small_l_prime;
 
-//find the longest substring starting from each index i that matches prefix
-//
-vector<int> z_array(const string& s){
-    int n = s.size();
-    vector<int> z(n,0);
-    int l = 0, r = 0;
+    vector<int> z_array(const string &s)
+    {
+        vector<int> z(s.length(), 0);
+        int l = 0, r = 0;
+        for (int i = 1; i < s.length(); ++i) {
+            if (i <= r)
+                z[i] = min(r - i + 1, z[i - l]);
+            while (i + z[i] < s.length() && s[z[i]] == s[i + z[i]])
+                ++z[i];
+            if (i + z[i] - 1 > r)
+                l = i, r = i + z[i] - 1;
+        }
+        return z;
+    }
 
-    for(int i = 1; i < n; i++){
-        if(i<=r){
-            z[i] = min(r-i+1, z[i-1]);
+    vector<int> n_array(const string &s) {
+        string rev_s = string(s.rbegin(), s.rend());
+        vector<int> z_rev = z_array(rev_s);
+        return vector<int>(z_rev.rbegin(), z_rev.rend());
+    }
+
+    vector<int> big_l_prime_array(const vector<int> &n) {
+        vector<int> lp(pattern.length(), 0);
+        for (int j = 0; j < pattern.length() - 1; ++j) {
+            int i = pattern.length() - n[j];
+            if (i < pattern.length())
+                lp[i] = j + 1;
         }
-        while(i + z[i] < n && s[z[i]] == s[i+z[i]]){
-            z[i]++;
+        return lp;
+    }
+
+    vector<int> big_l_array(const vector<int> &lp) {
+        vector<int> l(pattern.length(), 0);
+        l[1] = lp[1];
+        for (int i = 2; i < pattern.length(); ++i)
+            l[i] = max(l[i - 1], lp[i]);
+        return l;
+    }
+
+    vector<int> small_l_prime_array(const vector<int> &n) {
+        vector<int> small_lp(n.size(), 0);
+        for (int i = 0; i < n.size(); ++i)
+            if (n[i] == i + 1)
+                small_lp[pattern.length() - i - 1] = i + 1;
+
+        for (int i = n.size() - 2; i >= 0; --i)
+            if (small_lp[i] == 0)
+                small_lp[i] = small_lp[i + 1];
+
+        return small_lp;
+    }
+
+    vector<vector<int>> dense_bad_char_tab() {
+        vector<vector<int>> tab(pattern.length(), vector<int>(amap.size(), 0));
+        vector<int> nxt(amap.size(), 0);
+        for (int i = 0; i < pattern.length(); ++i) {
+            char c = pattern[i];
+            tab[i] = nxt;
+            nxt[amap[c]] = i + 1;
         }
-        if(i+z[i]-1 > r){
-            l = i;
-            r = i+z[i]-1;
+        return tab;
+    }
+
+    void good_suffix_table() {
+        vector<int> n = n_array(pattern);
+        vector<int> lp = big_l_prime_array(n);
+        big_l = big_l_array(lp);
+        small_l_prime = small_l_prime_array(n);
+    }
+
+public:
+    BoyerMoore(const string &p) : pattern(p) {
+
+        string alphabet = "abcdefghijklmnopqrstuvwxyz";
+        for (int i = 0; i < alphabet.size(); ++i)
+            amap[alphabet[i]] = i;
+
+        bad_char = dense_bad_char_tab();
+        good_suffix_table();
+    }
+
+    int bad_character_rule(int i, char c) {
+        if (amap.find(c) == amap.end())
+            return i + 1; 
+        return i - (bad_char[i][amap[c]] - 1);
+    }
+
+    int good_suffix_rule(int i) {
+        int length = pattern.length();
+        if (i == length - 1)
+            return 0;
+        ++i; 
+        if (big_l[i] > 0)
+            return length - big_l[i];
+        return length - small_l_prime[i];
+    }
+
+    int match_skip() {
+        return pattern.length() - small_l_prime[1];
+    }
+};
+
+class OccurrenceFinder
+{
+private:
+    string text;
+
+public:
+    OccurrenceFinder(const string &filename)
+    {
+        ifstream fileIn(filename);
+        if (!fileIn.is_open())
+        {
+            cerr << "Error in opening: " << filename << endl;
+            exit(EXIT_FAILURE);
+        }
+        text.assign((istreambuf_iterator<char>(fileIn)), istreambuf_iterator<char>());
+        fileIn.close();
+    }
+
+    vector<int> boyer_moore_search(const string &pattern)
+    {
+        BoyerMoore bm(pattern);
+        vector<int> occurrences;
+        size_t i = 0;
+        size_t len_t = text.length();
+        size_t len_p = pattern.length();
+
+        while (i <= len_t - len_p)
+        {
+            int shift = 1;
+            bool mismatched = false;
+
+            for (int j = len_p - 1; j >= 0; --j)
+            {
+                if (pattern[j] != text[i + j])
+                {
+                    int bc_shift = bm.bad_character_rule(j, text[i + j]);
+                    int gs_shift = bm.good_suffix_rule(j);
+                    shift = max(shift, max(bc_shift, gs_shift));
+                    mismatched = true;
+                    break;
+                }
+            }
+            if (!mismatched)
+            {
+                occurrences.push_back(i);
+                shift = bm.match_skip();
+            }
+            i += shift;
+        }
+        return occurrences;
+    }
+
+    void display_output(const string &pattern, const vector<int> &occurrences)
+    {
+        cout << pattern << ": ";
+        if (occurrences.empty())
+        {
+            cout << endl;
+        }
+        else
+        {
+            for (int index : occurrences)
+            {
+                cout << " " << index;
+            }
+            cout << endl;
         }
     }
-    return z;
+};
+
+int main(int argc, char *argv[])
+{
+    if (argc < 3)
+        return 1;
+
+    OccurrenceFinder finder(argv[1]);
+    string pattern(argv[2]);
+
+    vector<int> occurrences = finder.boyer_moore_search(pattern);
+    finder.display_output(pattern, occurrences);
+
+    return 0;
 }
 
-vector<int> n_array(const string& s){
-    string rev_s = s;
-    reverse(rev_s.begin(), rev_s.end());
-    return z_array(rev_s);
-}
+// z-array ->
+// n-array ->
+// big-l-prime array ->
+// big-l array ->
+// small-l-prime array ->
+// dense-bad-char-table ->
+// good-suffix-table->
+
+
+
+
+// Best case: O(t)  Worst case: O(p*(t-p+1))
+// Where ‘p’ is length of pattern and ‘t’ is length of text.
+// Space complexities: O(1), since no extra space is required.
+// argc -> argument counter, argv -> c style strings (char pointers)
+// arguments corresponding to command line: argv[0] -> file name, argv[1] = text, argv[2] = pattern

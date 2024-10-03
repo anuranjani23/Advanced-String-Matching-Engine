@@ -5,13 +5,17 @@
 
 using namespace std;
 
-class OccurrenceFinder {
+class OccurrenceFinder
+{
 private:
     string text;
+
 public:
-    OccurrenceFinder(const string& filename) {
+    OccurrenceFinder(const string &filename)
+    {
         ifstream fileIn(filename);
-        if (!fileIn.is_open()) {
+        if (!fileIn.is_open())
+        {
             cerr << "Error in opening: " << filename << endl;
             exit(EXIT_FAILURE);
         }
@@ -19,31 +23,41 @@ public:
         fileIn.close();
     }
 
-    vector<int> naiveSearch(const string& pattern) {
+    vector<int> naiveSearch(const string &pattern)
+    {
         vector<int> occurrence;
         size_t len_t = text.length();
         size_t len_p = pattern.length();
-        
-        for (size_t i = 0; i <= len_t - len_p; i++) {
+
+        for (size_t i = 0; i <= len_t - len_p; i++)
+        {
             bool match = true;
-            for (size_t j = 0; j < len_p; j++) {
-                if (text[i + j] != pattern[j]) {
+            for (size_t j = 0; j < len_p; j++)
+            {
+                if (text[i + j] != pattern[j])
+                {
                     match = false;
                     break;
                 }
             }
-            if (match) {
-                occurrence.push_back(i); 
+            if (match)
+            {
+                occurrence.push_back(i);
             }
         }
         return occurrence;
     }
-    void display_output(const string& pattern, const vector<int>& occurrences) {
+    void display_output(const string &pattern, const vector<int> &occurrences)
+    {
         cout << pattern << ": ";
-        if (occurrences.empty()) {
+        if (occurrences.empty())
+        {
             cout << endl;
-        } else {
-            for (int index : occurrences) {
+        }
+        else
+        {
+            for (int index : occurrences)
+            {
                 cout << " " << index;
             }
             cout << endl;
@@ -51,8 +65,10 @@ public:
     }
 };
 
-int main(int argc, char* argv[]) {
-    if(argc < 3) return 1;
+int main(int argc, char *argv[])
+{
+    if (argc < 3)
+        return 1;
     OccurrenceFinder finder(argv[1]);
     string pattern(argv[2]);
     vector<int> occurrences = finder.naiveSearch(pattern);
