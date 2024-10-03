@@ -1,3 +1,5 @@
+// ->> Scroll to the bottom for the code and algorithm specifics.
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -137,15 +139,14 @@ public:
     {
         BoyerMoore bm(pattern);
         vector<int> occurrences;
-        size_t i = 0;
+        size_t i = 0; // Keeping track of char's in pattern.
         size_t len_t = text.length();
         size_t len_p = pattern.length();
 
-        while (i <= len_t - len_p)
+        while (i <= len_t - len_p) // Looping through all positions in text, where pattern could start.
         {
             int shift = 1;
-            bool mismatched = false;
-
+            bool mismatched = false; // Update as we find a mismatch.
             for (int j = len_p - 1; j >= 0; --j)
             {
                 if (pattern[j] != text[i + j])
@@ -153,14 +154,16 @@ public:
                     int bc_shift = bm.bad_character_rule(j, text[i + j]);
                     int gs_shift = bm.good_suffix_rule(j);
                     shift = max(shift, max(bc_shift, gs_shift));
+                    // 3 possible shifts -> either by 1, by bc, or by gs. Settle with whatever is maximum.
                     mismatched = true;
                     break;
                 }
             }
             if (!mismatched)
             {
+                // Didn't found any mismatch, all char matched exactly.
                 occurrences.push_back(i);
-                shift = bm.match_skip();
+                shift = max(shift, bm.match_skip());
             }
             i += shift;
         }
@@ -199,19 +202,29 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-// z-array ->
-// n-array ->
-// big-l-prime array ->
-// big-l array ->
-// small-l-prime array ->
-// dense-bad-char-table ->
-// good-suffix-table->
+/* z-array -> an array where each element z[i] represents the length of the longest substring 
+starting from i that is also a prefix of the string passed. */  
+/* n-array -> derived by sending the reverse of string in z-array, helps in good-suffix-rule
+to calculate big-l-prime and small-l-prime.*/ 
+// big-l-prime array -> finding largest suffix of substring to prefix of pattern match.
+// big-l array -> max shift based on the match in suffix and prefix.
+// small-l-prime array -> finding the shift when there is a partial match of prefix to suffix.
+// dense-bad-char-table -> created from pattern and set of char's, using bc rule.
+// good-suffix-table -> created using n-array, big-l-prime, small-l-prime, big-l.
+
+/* bad-char-rule -> we pass the index of the pattern at which mismatch occurs, and the 
+character in text which mismatched, it returns the no. of skips from the mapping/table 
+corresponding to this rule. */ 
+/* good-suffix-rule -> we only need to pass the index of the pattern where mismatch occurs. 
+It returns no. of skips until a suffix of substring t of text, matches the prefix of pattern. */ 
+/* match-skip -> pattern matches the text exactly, and it essentially just uses
+good-suffix-rule in that case. */ 
 
 
 
-
-// Best case: O(t)  Worst case: O(p*(t-p+1))
+// Pre-processing Time: ϴ(p+k), optimal for the cases where pattern is very large.
+// Matching Time: a) Best Case: Ω(t/p) b) Worst Case: O(p*t)
 // Where ‘p’ is length of pattern and ‘t’ is length of text.
-// Space complexities: O(1), since no extra space is required.
+// Space complexities: ϴ(m), to store shift during pre-processing.
 // argc -> argument counter, argv -> c style strings (char pointers)
 // arguments corresponding to command line: argv[0] -> file name, argv[1] = text, argv[2] = pattern
