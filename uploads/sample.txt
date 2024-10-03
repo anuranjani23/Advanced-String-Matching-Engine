@@ -1,6 +1,6 @@
 This a sample testing file. Nothing important to see here. 
 
 Genome/DNA Sequence:
-GGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCCGAGG
+GGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCCGAGGATCGGGTACGGGGACTGATCCCG.
 
 Aim is to see how fast the algos can search in text with repeating characters.
