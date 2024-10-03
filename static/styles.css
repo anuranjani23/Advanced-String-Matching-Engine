@@ -1,6 +1,6 @@
 body {
-    font-family: 'Merriweather', serif;       /* Set font to Roboto */
-    background-color: #f7f7f7;               /* Light grey background */
+    font-family: 'Merriweather', serif;       /* Set font to Merriweather */
+    background-color: #f7f7f7;               /* Light background */
     color: #333;                             /* Dark grey text color */
     margin: 0;                               /* Remove default margin */
     padding: 45px;                           /* Add padding around the body */
@@ -30,7 +30,7 @@ h2 {
 }
 h3 {
     font-family: 'Merriweather', serif;
-    color: #172736;                          /* Slightly lighter blue for subheading */
+    color: #172736;                          /* Slightly darker blue for subheading */
     font-size: larger;
     font-weight: bold
 }
@@ -41,7 +41,7 @@ textarea {
     width: 85%;                             /* Full width input updated */
     padding: 20px;                           /* Padding inside inputs */
     margin: 15px 0;                          /* Margin above and below */
-    border: 2px solid #cbc7c7;                  /* Light grey border */
+    border: 2px solid #cbc7c7;              /* Light grey border */
     border-radius: 10px;                      /* Rounded corners */
 }
 
@@ -54,7 +54,7 @@ input[type="file"]:focus {
     display: flex;                           /* Flexbox for buttons */
     flex-wrap: wrap;                         /* Wrap buttons to the next line if needed */
     gap: 15px;                               /* Space between buttons */
-    justify-content: center; 
+    justify-content: center;                  /* alignment */
 }
 
 button {
@@ -92,7 +92,8 @@ button:hover {
 
 textarea {
     width: 85%;                             /* Full width textarea */
-    resize: none;                            /* Prevent resizing of textarea */
+    height: 70%;                            /* Full height textarea */
+    resize: vertical;                       /* Allows resizing of textarea */
     border-radius: 7px;                     /* Rounded corners */
 }
 
