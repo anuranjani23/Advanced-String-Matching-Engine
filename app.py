@@ -1,4 +1,4 @@
-# ->> Scroll to the bottom for the code and algorithm specifics.
+# ->> Scroll to the bottom for the code specifics.
 
 import os
 from flask import Flask, render_template, request, redirect, flash
