@@ -1,6 +1,6 @@
 body {
     font-family: 'Merriweather', serif;       /* Set font to Merriweather */
-    background-color: #f7f7f7;               /* Light background */
+    background-color: #ececec;               /* Light background */
     color: #333;                             /* Dark grey text color */
     margin: 0;                               /* Remove default margin */
     padding: 45px;                           /* Add padding around the body */
@@ -8,7 +8,7 @@ body {
 }
 
 .container {
-    max-width: 800px;                        /* Max width for the container updated */
+    max-width: 810px;                        /* Max width for the container updated */
     margin: auto;                            /* Center the container */
     background: #fff;                        /* White background for the container */
     padding: 30px;                           /* Inner padding */
@@ -25,13 +25,13 @@ h1 {
 h2 {
     font-family: 'Merriweather', serif;
     color: #34495e;                          /* Slightly lighter blue for subheading */
-    font-size: x-large;
+    font-size: larger;
     font-weight: bold
 }
 h3 {
     font-family: 'Merriweather', serif;
     color: #172736;                          /* Slightly darker blue for subheading */
-    font-size: larger;
+    font-size: large;
     font-weight: bold
 }
 h4 {
@@ -40,13 +40,15 @@ h4 {
     font-size: small;
     font-weight: bold
 }
-
+h5 {
+    margin: 25px;
+}
 input[type="text"],
 input[type="file"],
 textarea {
     width: 85%;                             /* Full width input updated */
-    padding: 20px;                           /* Padding inside inputs */
-    margin: 15px 0;                          /* Margin above and below */
+    padding: 25px;                           /* Padding inside inputs */
+    margin: 16px;                          /* Margin above and below */
     border: 2px solid #cbc7c7;              /* Light grey border */
     border-radius: 10px;                      /* Rounded corners */
 }
@@ -59,7 +61,7 @@ input[type="file"]:focus {
 .buttons {
     display: flex;                           /* Flexbox for buttons */
     flex-wrap: wrap;                         /* Wrap buttons to the next line if needed */
-    gap: 15px;                               /* Space between buttons */
+    gap: 20px;                               /* Space between buttons */
     justify-content: center;                  /* alignment */
 }
 
@@ -81,7 +83,7 @@ button:hover {
 .flash {
     padding: 10px;                           /* Padding for flash messages */
     border-radius: 5px;                      /* Rounded corners */
-    margin-bottom: 20px;                     /* Space below flash messages */
+    margin-bottom: 22px;                     /* Space below flash messages */
 }
 
 .flash li {
@@ -93,19 +95,19 @@ button:hover {
     background: #d5f0f4;                     /* Light blue background for results */
     padding: 15px;                           /* Padding inside results */
     border-radius: 5px;                      /* Rounded corners */
-    margin-top: 20px;                        /* Space above results */
+    margin-top: 22px;                        /* Space above results */
 }
 
 textarea {
-    width: 85%;                             /* Full width textarea */
-    height: 70%;                            /* Full height textarea */
+    width: 90%;                             /* Full width textarea */
+    height: 80%;                            /* Full height textarea */
     resize: vertical;                       /* Allows resizing of textarea */
-    border-radius: 7px;                     /* Rounded corners */
+    border-radius: 10px;                     /* Rounded corners */
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
     h1 {
-        font-size: 24px;                     /* Smaller font size for h1 on small screens */
+        font-size: 25px;                     /* Smaller font size for h1 on small screens */
     }
     button {
         width: 100%;                         /* Full width buttons on small screens */

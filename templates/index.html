@@ -12,7 +12,7 @@
 
 <body>
     <div class="container">
-        <h1>Advanced String Matching Engine</h1>
+        <h1><u>Advanced String Matching Engine</u></h1>
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         <ul class="flash">
@@ -43,13 +43,13 @@
                 </label>
                 <input type="text" name="patterns" id="patterns" placeholder="e.g., pattern1, pattern2" required>
             </div>
-
+            <h5>
             <div class="buttons">
                 <button type="submit" name="naive">Naive Search</button>
                 <button type="submit" name="rabin">Rabin-Karp Search</button>
                 <button type="submit" name="boyer">Boyer-Moore Search</button>
                 <button type="button" onclick="resetPage()">Reset Page</button>
-            </div>
+            </div></h5>
         </form>
         <script>
             function resetPage() {
