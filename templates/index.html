@@ -43,21 +43,36 @@
                 </label>
                 <input type="text" name="patterns" id="patterns" placeholder="e.g., pattern1, pattern2" required>
             </div>
-            <h5>
+
             <div class="buttons">
-                <button type="submit" name="naive">Naive Search</button>
-                <button type="submit" name="rabin">Rabin-Karp Search</button>
-                <button type="submit" name="boyer">Boyer-Moore Search</button>
-                <button type="button" onclick="resetPage()">Reset Page</button>
-            </div></h5>
+                <h7><button type="submit" name="analyze_search">Analyze Search</button></h7>
+                <h7><button type="button" onclick="resetPage()">Reset Page</button></h7>
+            </div>
+
+            <div>
+                <label for="algorithms">
+                    <h3>Select Search Algorithm:</h3>
+                </label>
+                <select name="algorithm" id="algorithms" required>
+                    <option value="none" selected>None</option> 
+                    <option value="naive">Naive Search</option>
+                    <option value="rabin">Rabin-Karp Search</option>
+                    <option value="boyer">Boyer-Moore Search</option>
+                    <option value="kmp">KMP Search</option>
+                </select>
+                <br> <!-- Line break for spacing -->
+                <h7><button type="submit" name="use_selected_algorithm">Use Selected Algorithm</button></h7>
+            </div>            
         </form>
+
         <script>
             function resetPage() {
                 document.getElementById('patterns').value = '';
                 document.querySelectorAll('.flash').forEach(flash => flash.innerHTML = '');
+                document.getElementById('algorithms').selectedIndex = 0; 
             }
         </script>
-        
+
         <div class="result">
             <h2>Uploaded Text:</h2>
             <textarea readonly>{{ text }}</textarea>
@@ -65,8 +80,11 @@
 
         {% if results %}
         <div class="result">
-            <h2>Search Results for {{ algorithm }}:</h2>
+            <h2>Search Results:</h2>
             <p><strong>Time Taken:</strong> {{ times }} seconds</p>
+            {% if algorithm_used %}
+            <h3>Algorithm Used: {{ algorithm_used }}</h3>
+            {% endif %}
             {% for pattern, positions in results.items() %}
             <div>
                 <strong>{{ pattern }}</strong>
@@ -79,8 +97,6 @@
             {% endfor %}
         </div>
         {% endif %}
-
-
     </div>
 </body>
 
