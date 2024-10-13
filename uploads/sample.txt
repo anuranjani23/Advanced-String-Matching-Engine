@@ -1,6 +1,32 @@
-This a sample testing file. Nothing important to see here. 
+This is a sample testing file. Nothing important to see here. 
 
 Genome/DNA Sequence:
 GGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCCGAGGATCGGGTACGGGGACTGATCCCG.
+The purpose of this document is to provide a comprehensive test for various string searching algorithms.
+Algorithms such as Naive, Rabin-Karp, Boyer-Moore, and KMP will be evaluated on their speed and efficiency.
+We will utilize a variety of patterns, including:
+1. Repeated characters: AAAAAAAAAAA
+2. Mixed characters: ATCGATCGATCG
+3. Palindromic patterns: AABBAA
+4. Long patterns: GGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCCGAGGATCGGGTACGGGGACTGATCCCG.
 
-Aim is to see how fast the algos can search in text with repeating characters.
+Aim is to see how fast the algorithms can search in text with repeating characters. The algorithms will be tested on both small and large datasets to analyze their performance.
+
+Sample repetitions in the text will be significant. For example:
+- AAAAAAAAAAA
+- GGGGGGGGGG
+- CCCCCCCCCC
+- TTTTTTTTTT
+- ATATATATAT
+
+In summary, the goal of this testing file is to assess the effectiveness of string searching algorithms on large sequences of data. 
+We hope to gather insights on their performance metrics such as time taken and resource utilization.
+
+This file will also include random sentences and phrases for further complexity. 
+For example, here are some sentences with repeated phrases:
+- The cat sat on the mat, and the mat was flat.
+- In the land of the blind, the one-eyed man is king. 
+- The quick brown fox jumps over the lazy dog multiple times: The quick brown fox jumps over the lazy dog.
+- A long time ago in a galaxy far, far away: A long time ago in a galaxy far, far away.
+
+End of sample text.
