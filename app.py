@@ -15,6 +15,31 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB upload limit
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['BUILD_FOLDER'], exist_ok=True)
 
+def analyze_search_method(pattern, text):
+    m = len(pattern)
+    n = len(text)
+
+    if m == 0 or n == 0:
+        return "naive" 
+
+    unique_chars_pattern = len(set(pattern))
+    unique_chars_text = len(set(text))
+
+    
+    if unique_chars_pattern <= m // 2:
+        return "boyer"
+
+    if text.count(pattern[0]) > (n // m) and unique_chars_pattern > m // 2:
+        return "kmp"
+
+    if m <= 10 and n <= 200: 
+        return "naive"
+
+    if unique_chars_pattern < m and unique_chars_text < n:
+        return "rabin"
+    
+    return "kmp"
+    
 @app.route('/', methods=['GET', 'POST'])
 def index():
     results = {}
@@ -135,3 +160,10 @@ if __name__ == "__main__":
 # Handling the pattern input.
 # Determining which button was pressed.
 # Render the template for GET request or empty POST request and retaining the uploaded file reference.
+
+
+# analyze search method approach (for currently 4 algos)---> 
+# Boyer-Moore is efficient for patterns with fewer unique chars.
+# (KMP) is useful if the pattern has many repeating chars.
+# Naive search for the small patterns and small text size (better overhead).
+# RK works comparatively well when both pattern and text have many repeating chars.
