@@ -30,3 +30,32 @@
 *.exe
 *.out
 *.app
+
+# Byte-compiled Python files
+__pycache__/
+*.py[cod]
+
+# MacOS system files
+.DS_Store
+
+# Ignore virtual environments (if applicable)
+env/
+venv/
+
+# Logs and database
+*.log
+*.sqlite3
+
+# Ignore temporary or backup files
+*.bak
+*.tmp
+*.swp
+
+# Ignore build files
+build/
+dist/
+*.egg-info/
+
+# Ignore Makefile-generated objects
+*.o
+*.obj
