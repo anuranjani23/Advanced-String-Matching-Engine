@@ -1,115 +1,164 @@
 body {
     font-family: 'Merriweather', serif;       /* Set font to Merriweather */
-    background-color: #ececec;               /* Light background */
-    color: #333;                             /* Dark grey text color */
-    margin: 0;                               /* Remove default margin */
-    padding: 45px;                           /* Add padding around the body */
-    text-align: center;                      /* Center text alignment */
+    background: linear-gradient(135deg, #d0dee4 25%, #f5faff 25%, #f5faff 50%, #d0dee4 50%, #d0dee4 75%, #f5faff 75%, #f5faff 100%); /* Light blue-ish diagonal stripe gradient */
+    background-size: 12px 12px;               /* Slightly larger stripes */
+    color: #2d2d2d;                           /* Darker grey for better contrast */
+    margin: 0;
+    padding: 50px;
+    text-align: center;
 }
 
 .container {
-    max-width: 810px;                        /* Max width for the container updated */
-    margin: auto;                            /* Center the container */
-    background: #fff;                        /* White background for the container */
-    padding: 30px;                           /* Inner padding */
-    border-radius: 10px;                     /* Rounded corners */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    max-width: 800px;
+    margin: auto;
+    background: #f7fcfd;                      /* Light blue background for container */
+    padding: 40px;
+    border-radius: 25px;                      /* Increased border radius for more rounded corners */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); /* Elevated shadow for depth */
+    border: 1px solid #d1e7f5;                /* Slight blue tint for border */
 }
 
 h1 {
     font-family: 'Merriweather', serif;
-    color: #2c3e50;  
-    font-weight: bold                        /* Dark blue for main heading */
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 2.2em;                         /* Larger font size */
+    line-height: 1.2;
+    margin-bottom: 20px;                      /* Adjust margin for spacing */
+}
+
+h2, h3 {
+    font-family: 'Merriweather', serif;
+    color: #34495e;
+    font-weight: bold;
+    margin-bottom: 20px;
 }
 
 h2 {
-    font-family: 'Merriweather', serif;
-    color: #34495e;                          /* Slightly lighter blue for subheading */
-    font-size: larger;
-    font-weight: bold
+    font-size: 1.2em;                         /* Adjust size for balance */
+    color: #2c3e50;                           /* Darker color for emphasis */
 }
+
 h3 {
-    font-family: 'Merriweather', serif;
-    color: #172736;                          /* Slightly darker blue for subheading */
-    font-size: large;
-    font-weight: bold
+    font-size: 1.15em;
 }
+
 h4 {
-    font-family: 'Merriweather', serif;
-    color: #34495e;                         
-    font-size: small;
-    font-weight: bold
+    font-size: 1.00em;
+    color: #172736;
 }
 h5 {
     margin: 25px;
 }
+
+h7 {
+    font-size: large;
+}
+
+
 input[type="text"],
 input[type="file"],
 textarea {
-    width: 85%;                             /* Full width input updated */
-    padding: 25px;                           /* Padding inside inputs */
-    margin: 16px;                          /* Margin above and below */
-    border: 2px solid #cbc7c7;              /* Light grey border */
-    border-radius: 10px;                      /* Rounded corners */
+    width: 90%;
+    padding: 15px;
+    margin: 16px 0;
+    border: 1px solid #d1d1d1;
+    border-radius: 12px;                      /* Softer corners */
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+    background-color: #fbfdff;                /* Light blue hint for input fields */
 }
 
 input[type="text"]:focus,
-input[type="file"]:focus {
-    border-color: #3e98d4;                   /* Blue border on focus */
+input[type="file"]:focus,
+textarea:focus {
+    border-color: #3e98d4;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Stronger shadow on focus */
+}
+
+select {
+    width: 90%;
+    padding: 12px;
+    margin: 16px 0;
+    border: 1px solid #d1d1d1;
+    border-radius: 12px;
+    font-family: 'Merriweather', serif;
+    font-size: 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: #fbfdff;                /* Light blue hue for select */
+}
+
+select:focus {
+    border-color: #3e98d4;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .buttons {
-    display: flex;                           /* Flexbox for buttons */
-    flex-wrap: wrap;                         /* Wrap buttons to the next line if needed */
-    gap: 20px;                               /* Space between buttons */
-    justify-content: center;                  /* alignment */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
 }
 
 button {
     font-family: 'Merriweather', serif;
-    background: #3498db;                     /* Primary button color */
-    color: #fff;                             /* White text */
-    padding: 10px 15px;                      /* Padding inside buttons */
-    border: none;                            /* No border */
-    border-radius: 5px;                      /* Rounded corners */
-    cursor: pointer;                         /* Pointer cursor on hover */
-    transition: background-color 0.3s;       /* Smooth transition for hover */
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #fff;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;                      /* Slightly more rounded buttons */
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 230px;
 }
 
 button:hover {
-    background: #2980b9;                     /* Darker shade on hover */
+    background: linear-gradient(135deg, #2980b9, #1c598a);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
 }
 
 .flash {
-    padding: 10px;                           /* Padding for flash messages */
-    border-radius: 5px;                      /* Rounded corners */
-    margin-bottom: 22px;                     /* Space below flash messages */
+    padding: 15px;
+    background: #ffefc5;
+    border-radius: 12px;                      /* Increased border radius for flash messages */
+    margin-bottom: 20px;
+    color: #a67c00;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 .flash li {
-    list-style: none;                        /* No list style for flash messages */
+    list-style: none;
 }
 
 .result {
-    text-align: center;
-    background: #d5f0f4;                     /* Light blue background for results */
-    padding: 15px;                           /* Padding inside results */
-    border-radius: 5px;                      /* Rounded corners */
-    margin-top: 22px;                        /* Space above results */
+    background: #d8eef5;
+    padding: 20px;
+    border-radius: 15px;                      /* Soft corners for result box */
+    margin-top: 22px;
+    color: #2c3e50;
 }
 
 textarea {
-    width: 90%;                             /* Full width textarea */
-    height: 80%;                            /* Full height textarea */
-    resize: vertical;                       /* Allows resizing of textarea */
-    border-radius: 10px;                     /* Rounded corners */
+    width: 90%;
+    height: 120px;
+    resize: vertical;
+    border-radius: 12px;
+    background-color: #fbfdff;                /* Light blue hint */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 @media (max-width: 640px) {
     h1 {
-        font-size: 25px;                     /* Smaller font size for h1 on small screens */
+        font-size: 28px;
     }
     button {
-        width: 100%;                         /* Full width buttons on small screens */
+        width: 100%;
     }
 }
