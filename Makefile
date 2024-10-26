@@ -7,7 +7,7 @@ CXX := g++
 CXXFLAGS := -O2 -std=c++14
 
 # Targets
-TARGETS := naive_search rabin_karp_search boyer_moore_search kmp_search dfa_search z_search
+TARGETS := naive_search rabin_karp_search boyer_moore_search kmp_search dfa_search z_search aho_corasick_search
 
 # Source files (assuming all source files are in the src/ directory)
 SOURCES := $(patsubst %, src/%.cpp, $(TARGETS))
