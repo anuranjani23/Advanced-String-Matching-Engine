@@ -59,7 +59,7 @@ This project is a web-based tool for analyzing the performance of different patt
    python app.py
    ```
 
-   The application will be accessible at `http://127.0.0.1:5000`.
+   The application will be accessible at `http://127.0.0.1:5000/`.
 
 ## Project Structure
 
@@ -82,7 +82,7 @@ This project is a web-based tool for analyzing the performance of different patt
 ├── Makefile             # Makefile to compile C++ binaries
 ├── README.md            # Project documentation
 └── .gitignore           
-
+```
 ## Usage
 
 1. **Upload a Text File or a URL**
