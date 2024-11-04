@@ -1,103 +1,394 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href='https://fonts.googleapis.com/css?family=Merriweather' rel='stylesheet'>
-    <title>Advanced String Matching Engine</title>
-    <link rel="stylesheet" href="../static/styles.css">
+    <meta name="description" content="PatMat: A pattern matching engine supporting multiple string matching algorithms">
+    <title>Pattern Search Analysis Tool</title>
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles -->
+    <style>
+        .error-feedback {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .loading-spinner {
+            display: none;
+            margin-left: 1rem;
+        }
+        .pattern-chip {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            margin: 0.25rem;
+            background-color: #e9ecef;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+        }
+        .results-container {
+            transition: all 0.3s ease;
+        }
+    </style>
 </head>
 
-<body>
-    <div class="container">
-        <h1><u>Advanced String Matching Engine</u></h1>
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul class="flash">
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-
-        <form method="POST" enctype="multipart/form-data">
-            <div>
-                <label for="textfile">
-                    <h3>Upload Text File:</h3>
-                </label>
-                {% if uploaded_file %}
-                <input type="file" name="textfile" id="textfile" accept=".txt" disabled>
-                <input type="hidden" name="uploaded_file" value="{{ uploaded_file }}">
-                <h4>Uploaded File: {{ uploaded_file }}</h4>
-                {% else %}
-                <input type="file" name="textfile" id="textfile" accept=".txt" required>
-                {% endif %}
-            </div>
-
-            <div>
-                <label for="patterns">
-                    <h3>Enter Patterns (comma-separated):</h3>
-                </label>
-                <input type="text" name="patterns" id="patterns" placeholder="e.g., pattern1, pattern2" required>
-            </div>
-
-            <div class="buttons">
-                <h7><button type="submit" name="analyze_search">Analyze Search</button></h7>
-                <h7><button type="button" onclick="resetPage()">Reset Page</button></h7>
-            </div>
-
-            <div>
-                <label for="algorithms">
-                    <h3>Select Search Algorithm:</h3>
-                </label>
-                <select name="algorithm" id="algorithms" required>
-                    <option value="none" selected>None</option> 
-                    <option value="naive">Naive Search</option>
-                    <option value="rabin">Rabin-Karp Search</option>
-                    <option value="boyer">Boyer-Moore Search</option>
-                    <option value="kmp">KMP Search</option>
-                </select>
-                <br> <!-- Line break for spacing -->
-                <h7><button type="submit" name="use_selected_algorithm">Use Selected Algorithm</button></h7>
-            </div>            
-        </form>
-
-        <script>
-            function resetPage() {
-                document.getElementById('patterns').value = '';
-                document.querySelectorAll('.flash').forEach(flash => flash.innerHTML = '');
-                document.getElementById('algorithms').selectedIndex = 0; 
-            }
-        </script>
-
-        <div class="result">
-            <h2>Uploaded Text:</h2>
-            <textarea readonly>{{ text }}</textarea>
+<body class="bg-light">
+    <div class="container my-5">
+        <h1 class="text-center mb-4">Pattern Search Analysis Tool</h1>
+        
+        <!-- Alert for notifications -->
+        <div id="alertContainer" class="alert alert-dismissible fade d-none" role="alert">
+            <span id="alertMessage"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        {% if results %}
-        <div class="result">
-            <h2>Search Results:</h2>
-            <p><strong>Time Taken:</strong> {{ times }} seconds</p>
-            {% if algorithm_used %}
-            <h3>Algorithm Used: {{ algorithm_used }}</h3>
-            {% endif %}
-            {% for pattern, positions in results.items() %}
-            <div>
-                <strong>{{ pattern }}</strong>
-                {% if positions %}
-                found at Position: <strong>{{ positions | join(', ') }}</strong>
-                {% else %}
-                <strong>Not Found</strong>
-                {% endif %}
-            </div>
-            {% endfor %}
+        <!-- Input Form -->
+        <div class="card shadow-sm p-4 mb-4">
+            <form id="searchForm" enctype="multipart/form-data" novalidate>
+                <!-- File Upload Section -->
+                <div class="mb-3">
+                    <label for="textfile" class="form-label">ᯓ Upload Text File:</label>
+                    <input type="file" class="form-control" name="textfile" id="textfile" accept=".txt">
+                    <div class="invalid-feedback">Please select a valid text file.</div>
+                </div>
+
+                <!-- URL Input Section -->
+                <div class="mb-3">
+                    <label for="url" class="form-label">ᯓ Or Enter URL:</label>
+                    <input type="url" class="form-control" name="url" id="url" 
+                           placeholder="https://example.com" pattern="https?://.+">
+                    <div class="invalid-feedback">Please enter a valid URL starting with http:// or https://</div>
+                </div>
+
+                <!-- Patterns Input -->
+                <div class="mb-3">
+                    <label for="patterns" class="form-label">ᯓ Enter Patterns (comma-separated):</label>
+                    <input type="text" class="form-control" name="patterns" id="patterns" 
+                           placeholder="e.g., pattern1, pattern2" required>
+                    <div class="invalid-feedback">Please enter at least one pattern.</div>
+                    <div id="patternChips" class="mt-2"></div>
+                </div>
+
+                <!-- Algorithm Selection -->
+                <div class="mb-3">
+                    <label for="algorithms" class="form-label">ᯓ Select Search Algorithm:</label>
+                    <select class="form-select" name="algorithm" id="algorithms" required>
+                        <option value="none" selected>Select</option>
+                        <option value="Naive">Naive Search</option>
+                        <option value="Rabin-Karp">Rabin-Karp</option>
+                        <option value="KMP">KMP (Knuth-Morris-Pratt)</option>
+                        <option value="Boyer-Moore">Boyer-Moore</option>
+                        <option value="DFA">Deterministic Finite Automata</option>
+                        <option value="Z">Z-Algorithm</option>
+                        <option value="Aho-Corasick">Aho-Corasick</option>
+                    </select>
+                    <div class="invalid-feedback">Please select an algorithm.</div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-primary" onclick="runSelectedAlgorithm()">
+                        Run Selected Algorithm
+                        <div class="spinner-border spinner-border-sm loading-spinner" role="status" id="runSpinner">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="autoAnalyzeSearch()">
+                        Auto-Analyze Best Algorithm
+                        <div class="spinner-border spinner-border-sm loading-spinner" role="status" id="analyzeSpinner">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="randomPatternAnalysis()">
+                        Random Pattern Analysis
+                        <div class="spinner-border spinner-border-sm loading-spinner" role="status" id="randomSpinner">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                </div>
+            </form>
         </div>
-        {% endif %}
+
+        <!-- Results Section -->
+        <div class="card shadow-sm p-4 mb-4 results-container" style="display: none;" id="resultsCard">
+            <h3 class="card-title mb-3">ᯓ Results</h3>
+            <!-- Text Content Preview -->
+            <div class="mb-4" id="textPreviewContainer">
+                <h4 class="h5">ᯓ Text Content Preview:</h4>
+                <div class="form-floating">
+                    <textarea class="form-control" id="textPreview" readonly rows="5" 
+                              style="height: 150px;"></textarea>
+                    <label for="textPreview">First 1000 characters</label>
+                </div>
+            </div>
+            <!-- Search Results -->
+            <div id="searchResults" class="bg-light p-3 border rounded" 
+                 style="max-height: 300px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- Performance Visualization -->
+        <div class="card shadow-sm p-4" id="chartContainer" style="display: none;">
+            <h4 class="card-title mb-3">ᯓ Algorithm Performance Comparison:</h4>
+            <canvas id="performanceChart"></canvas>
+        </div>
     </div>
-</body>
 
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        let performanceChart;
+
+        // Show alert message
+        function showAlert(message, type = 'danger') {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.className = `alert alert-${type} alert-dismissible fade show`;
+            document.getElementById('alertMessage').textContent = message;
+            setTimeout(() => {
+                alertContainer.className = 'alert alert-dismissible fade d-none';
+            }, 5000);
+        }
+
+        // Toggle loading state
+        function toggleLoading(buttonId, isLoading) {
+            const spinner = document.getElementById(buttonId);
+            spinner.style.display = isLoading ? 'inline-block' : 'none';
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => button.disabled = isLoading);
+        }
+
+        // Form validation
+        function validateForm() {
+            const form = document.getElementById('searchForm');
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return false;
+            }
+            
+            const fileInput = document.getElementById('textfile');
+            const urlInput = document.getElementById('url');
+            const patternsInput = document.getElementById('patterns');
+            
+            if (!fileInput.files.length && !urlInput.value.trim()) {
+                showAlert('Please either upload a file or enter a URL');
+                return false;
+            }
+            
+            if (!patternsInput.value.trim()) {
+                showAlert('Please enter at least one pattern');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Input handling
+        document.getElementById('url').addEventListener('input', function() {
+            document.getElementById('textfile').disabled = this.value.trim().length > 0;
+        });
+
+        document.getElementById('textfile').addEventListener('change', function() {
+            document.getElementById('url').disabled = this.files.length > 0;
+        });
+
+        document.getElementById('patterns').addEventListener('input', function() {
+            updatePatternChips(this.value);
+        });
+
+        // Update pattern chips
+        function updatePatternChips(patternsString) {
+            const patterns = patternsString.split(',').map(p => p.trim()).filter(p => p);
+            const chipsContainer = document.getElementById('patternChips');
+            chipsContainer.innerHTML = patterns
+                .map(pattern => `<span class="pattern-chip">${pattern}</span>`)
+                .join('');
+        }
+
+        // Reset form
+        function resetForm() {
+            const form = document.getElementById('searchForm');
+            form.reset();
+            form.classList.remove('was-validated');
+            document.getElementById('url').disabled = false;
+            document.getElementById('textfile').disabled = false;
+            document.getElementById('patterns').disabled = false;
+            document.getElementById('patternChips').innerHTML = '';
+            document.getElementById('resultsCard').style.display = 'none';
+            document.getElementById('chartContainer').style.display = 'none';
+            if (performanceChart) {
+                performanceChart.destroy();
+            }
+        }
+
+        // API request handler
+        async function makeRequest(endpoint, formData, spinnerId) {
+            toggleLoading(spinnerId, true);
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'An error occurred');
+                }
+                
+                return data;
+            } catch (error) {
+                showAlert(error.message);
+                return null;
+            } finally {
+                toggleLoading(spinnerId, false);
+            }
+        }
+
+        // Run selected algorithm
+        async function runSelectedAlgorithm() {
+            if (!validateForm()) return;
+            
+            const data = await makeRequest(
+                '/search', 
+                new FormData(document.getElementById('searchForm')),
+                'runSpinner'
+            );
+            if (data) {
+                displayResults(data);
+            }
+        }
+
+        // Auto analyze search
+        async function autoAnalyzeSearch() {
+            if (!validateForm()) return;
+            
+            const formData = new FormData(document.getElementById('searchForm'));
+            const data = await makeRequest('/analyze', formData, 'analyzeSpinner');
+            if (data) {
+                displayResults(data);
+                displayPerformanceChart(data.performance);
+            }
+        }
+
+        // Random pattern analysis
+        async function randomPatternAnalysis() {
+            const fileInput = document.getElementById('textfile');
+            const urlInput = document.getElementById('url');
+            
+            if (!fileInput.files.length && !urlInput.value.trim()) {
+                showAlert('Please either upload a file or enter a URL');
+                return;
+            }
+            
+            const formData = new FormData(document.getElementById('searchForm'));
+            const data = await makeRequest('/random_analysis', formData, 'randomSpinner');
+            if (data) {
+                document.getElementById('patterns').value = data.patterns_tested.join(', ');
+                updatePatternChips(data.patterns_tested.join(', '));
+                displayPerformanceChart(data.performance);
+            }
+        }
+
+        // Display results
+        function displayResults(data) {
+            const resultsCard = document.getElementById('resultsCard');
+            const resultsDiv = document.getElementById('searchResults');
+            let resultsHtml = '';
+            
+            if (data.text_content) {
+                document.getElementById('textPreview').value = data.text_content;
+                resultsCard.style.display = 'block';
+            }
+
+            if (data.results) {
+                resultsHtml += `
+                    <div class="mb-3">
+                        <div class="badge bg-info text-dark mb-2">Time Taken: ${data.times} seconds</div>
+                        ${data.algorithm_used ? 
+                          `<div class="badge bg-primary mb-2 ms-2">Algorithm: ${data.algorithm_used}</div>` : 
+                          ''}
+                    </div>`;
+                
+                for (const [pattern, positions] of Object.entries(data.results)) {
+                    resultsHtml += `
+                        <div class="card mb-2">
+                            <div class="card-body py-2">
+                                <h5 class="card-title mb-2">"${pattern}"</h5>
+                                <p class="card-text mb-0">
+                                    ${positions.length > 0 ? 
+                                      `Found at positions: <span class="fw-bold">${positions.join(', ')}</span>` : 
+                                      '<span class="text-danger">Not Found</span>'}
+                                </p>
+                            </div>
+                        </div>`;
+                }
+            }
+
+            resultsDiv.innerHTML = resultsHtml;
+        }
+
+        // Display performance chart
+        function displayPerformanceChart(performanceData) {
+            const chartContainer = document.getElementById('chartContainer');
+            chartContainer.style.display = 'block';
+
+            if (performanceChart) {
+                performanceChart.destroy();
+            }
+
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const algorithmLabels = {
+                'Naive': 'Naive Search',
+                'Rabin-Karp': 'Rabin-Karp',
+                'KMP': 'KMP',
+                'Boyer-Moore': 'Boyer-Moore',
+                'DFA': 'Finite Automata',
+                'Z': 'Z-Algorithm',
+                'Aho-Corasick': 'Aho-Corasick'
+            };
+
+            performanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(performanceData).map(key => algorithmLabels[key] || key),
+                    datasets: [{
+                        label: 'ᯓ Execution Time (seconds)',
+                        data: Object.values(performanceData),
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'ᯓ Performance Analysis Chart'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Time (seconds)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Algorithms'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
 </html>
