@@ -1,3 +1,5 @@
+// ->> Scroll to the bottom for the code and algorithm specifics.
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -17,6 +19,7 @@ private:
     int out[MAXS];
     int f[MAXS];
     int g[MAXS][MAXC];
+    vector<string> patterns;
 
     int charToIndex(char ch)
     {
@@ -32,10 +35,10 @@ private:
 
         int states = 1;
 
-        for (const string &pattern : patterns)
+        for (int patternIndex = 0; patternIndex < patterns.size(); ++patternIndex)
         {
             int currentState = 0;
-            for (char ch : pattern)
+            for (char ch : patterns[patternIndex])
             {
                 int index = charToIndex(ch);
                 if (index == -1) continue;
@@ -45,7 +48,7 @@ private:
                 }
                 currentState = g[currentState][index];
             }
-            out[currentState] = 1;
+            out[currentState] |= (1 << patternIndex); // Set bit for this pattern
         }
 
         for (int ch = 0; ch < MAXC; ++ch)
@@ -104,7 +107,8 @@ private:
     }
 
 public:
-    OccurrenceFinder(const string &filename)
+    OccurrenceFinder(const string &filename, const vector<string> &patterns)
+        : patterns(patterns)
     {
         ifstream fileIn(filename);
         if (!fileIn.is_open())
@@ -115,27 +119,25 @@ public:
 
         text.assign((istreambuf_iterator<char>(fileIn)), istreambuf_iterator<char>());
         fileIn.close();
+
+        buildMatchingMachine(patterns);
     }
 
-    vector<int> search(const string &pattern)
+    vector<vector<int>> search()
     {
-        buildMatchingMachine({pattern});
-        vector<int> occurrences;
+        vector<vector<int>> occurrences(patterns.size());
 
         int currentState = 0;
-        int lastMatch = -1;
 
         for (int i = 0; i < text.size(); ++i)
         {
             currentState = findNextState(currentState, text[i]);
 
-            if (out[currentState] == 1)
+            for (int patternIndex = 0; patternIndex < patterns.size(); ++patternIndex)
             {
-                int matchIndex = i - pattern.size() + 1;
-                if (matchIndex != lastMatch + 1)
+                if (out[currentState] & (1 << patternIndex))
                 {
-                    occurrences.push_back(matchIndex);
-                    lastMatch = matchIndex;
+                    occurrences[patternIndex].push_back(i - patterns[patternIndex].size() + 1);
                 }
             }
         }
@@ -143,14 +145,17 @@ public:
         return occurrences;
     }
 
-    void display_output(const string &pattern, const vector<int> &occurrences)
+    void display_output(const vector<vector<int>> &occurrences)
     {
-        cout << pattern << ":";
-        if (!occurrences.empty())
+        for (int i = 0; i < patterns.size(); ++i)
         {
-            for (int index : occurrences)
+            cout << patterns[i] << ":";
+            if (!occurrences[i].empty())
             {
-                cout << " " << index;
+                for (int index : occurrences[i])
+                {
+                    cout << " " << index;
+                }
             }
             cout << endl;
         }
@@ -161,16 +166,21 @@ int main(int argc, char *argv[])
 {
     if (argc < 3)
     {
-        cerr << "Usage: " << argv[0] << " <filename> <pattern>" << endl;
+        cerr << "Usage: " << argv[0] << " <filename> <pattern1> [<pattern2> ... <patternN>]" << endl;
         return 1;
     }
-    OccurrenceFinder finder(argv[1]);
-    string pattern = argv[2];
 
-    vector<int> occurrences = finder.search(pattern);
-    finder.display_output(pattern, occurrences);
+    string filename = argv[1];
+    vector<string> patterns(argv + 2, argv + argc);
+
+    OccurrenceFinder finder(filename, patterns);
+
+    vector<vector<int>> occurrences = finder.search();
+    finder.display_output(occurrences);
+
     return 0;
 }
+
 
 
 
