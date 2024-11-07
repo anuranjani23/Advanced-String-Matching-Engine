@@ -9,6 +9,8 @@ from bs4 import BeautifulSoup
 from typing import Dict, List, Optional
 from dataclasses import dataclass
 import logging
+from typing import List
+import math
 
 @dataclass
 class PatternMetrics:
@@ -78,32 +80,125 @@ def save_text_to_temp_file(text: str) -> str:
         raise
 
 def analyze_search_method(text: str, patterns: List[str]) -> str:
+    """
+    Analyzes text and patterns to recommend the most suitable string searching algorithm.
+    
+    Args:
+        text (str): The text to be searched
+        patterns (List[str]): List of patterns to search for
+    
+    Returns:
+        str: Name of the recommended search algorithm
+    """
     if not text or not patterns:
         return "Naive"
 
+    # Calculate text statistics
+    text_length = len(text)
+    text_unique_chars = len(set(text))
+    
+    # Calculate pattern statistics
+    total_pattern_length = sum(len(p) for p in patterns)
+    avg_pattern_length = total_pattern_length / len(patterns)
+    max_pattern_length = max(len(p) for p in patterns)
+    min_pattern_length = min(len(p) for p in patterns)
+    all_pattern_chars = set(''.join(patterns))
+    pattern_alphabet_size = len(all_pattern_chars)
+
     # Multiple patterns case
     if len(patterns) > 1:
+        # For long patterns with small alphabet, Boyer-Moore is often faster
+        # especially when patterns share suffixes
+        if (avg_pattern_length > 20 and 
+            pattern_alphabet_size < 30 and 
+            max_pattern_length / min_pattern_length < 3):  # Patterns are of similar length
+            return "Boyer-Moore"
+            
+        # Aho-Corasick is generally best for multiple patterns
+        # but not when patterns are very long and text is relatively short
+        if total_pattern_length > text_length * 0.1:
+            return "Boyer-Moore"
         return "Aho-Corasick"
 
+    # Single pattern analysis
     pattern = patterns[0]
-    text_stats = {
-        'length': len(text),
-        'unique_chars': len(set(text)),
-        'pattern_length': len(pattern),
-        'pattern_unique_chars': len(set(pattern)),
-        'pattern_frequency': text.count(pattern[0]) if pattern else 0
-    }
+    pattern_length = len(pattern)
+    
+    # Calculate character frequencies and entropy
+    char_freq = {}
+    for c in pattern:
+        char_freq[c] = char_freq.get(c, 0) + 1
+    
+    entropy = 0
+    for count in char_freq.values():
+        prob = count / pattern_length
+        entropy -= prob * math.log2(prob)
+    
+    # Calculate pattern characteristics
+    first_char_freq = text.count(pattern[0]) / text_length if text_length > 0 else 0
+    pattern_unique_chars = len(set(pattern))
+    pattern_occurrences = text.count(pattern)
+    
+    # Check for pattern periodicity
+    def is_periodic(p: str) -> bool:
+        if len(p) <= 1:
+            return False
+        for i in range(1, len(p) // 2 + 1):
+            if p[:i] * (len(p) // i) == p[:len(p) // i * i]:
+                return True
+        return False
 
-    # Algorithm selection logic
-    if text_stats['pattern_length'] <= 10 and text_stats['length'] <= 200:
+    # Very short patterns or text - use naive approach
+    if pattern_length <= 5 or text_length <= 100:
         return "Naive"
-    if text_stats['pattern_length'] > text_stats['length'] * 0.1:
-        return "Boyer-Moore"
-    if text_stats['pattern_frequency'] > (text_stats['length'] // text_stats['pattern_length']):
+        
+    # DFA is excellent for:
+    # - Short to medium patterns that appear frequently
+    # - Small alphabet size
+    # - When the text will be searched multiple times
+    if (pattern_length <= 30 and 
+        pattern_alphabet_size <= 26 and
+        pattern_occurrences > text_length / 1000):
+        return "DFA"
+    
+    # KMP is good for:
+    # - Periodic patterns
+    # - Patterns with repeating prefixes
+    # - When the pattern appears frequently
+    if (is_periodic(pattern) or 
+        pattern_occurrences > text_length / 100 or
+        (pattern_length > 10 and pattern_unique_chars < pattern_length * 0.6)):
         return "KMP"
-    if text_stats['pattern_unique_chars'] < text_stats['pattern_length'] * 0.5:
+    
+    # Boyer-Moore is excellent for:
+    # - Long patterns
+    # - Large alphabet size
+    # - When the pattern is rare in the text
+    if ((pattern_length > 15 and first_char_freq < 0.1) or
+        (pattern_length > 20 and pattern_alphabet_size > 20) or
+        (pattern_length > text_length * 0.01 and entropy > 3.0)):
+        return "Boyer-Moore"
+    
+    # Rabin-Karp is good for:
+    # - Short patterns with low entropy
+    # - When looking for multiple patterns of the same length
+    # - Patterns with many repeated characters
+    if (entropy < 2.5 and pattern_length < 20) or pattern_unique_chars < pattern_length * 0.4:
         return "Rabin-Karp"
-    return "Z"
+    
+    # Z algorithm is good for:
+    # - Medium length patterns
+    # - When preprocessing the pattern is beneficial
+    # - General-purpose cases where other algorithms don't have clear advantages
+    if pattern_length > 10 and pattern_length <= 100:
+        return "Z"
+        
+    # Default to Boyer-Moore for very long patterns
+    if pattern_length > 100:
+        return "Boyer-Moore"
+        
+    # For everything else, use KMP as a reliable default
+    return "KMP"
 
 def generate_smart_patterns(text: str) -> List[str]:
     num_patterns = 5
@@ -155,10 +250,81 @@ def run_search_algorithm(executable_path: str, input_file: str, pattern: str) ->
         logger.error(f"Algorithm execution failed: {str(e)}")
         return 0.0, []
 
+def run_search_algorithm_aho_corasick(executable_path: str, input_file: str, patterns: List[str]) -> tuple[float, Dict[str, List[int]]]:
+    try:
+        start_time = time.time()
+        proc = subprocess.run(
+            [executable_path, input_file] + patterns,
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=30  # Add timeout
+        )
+        execution_time = time.time() - start_time
+        
+        output = proc.stdout.strip()
+        positions_dict = {}
+        
+        # Parse output for each pattern
+        if output:
+            try:
+                for line in output.split('\n'):
+                    parts = line.split(":")
+                    if len(parts) == 2:
+                        pattern = parts[0].strip()
+                        positions = list(map(int, parts[1].strip().split()))
+                        positions_dict[pattern] = positions
+            except (IndexError, ValueError) as e:
+                logger.error(f"Error parsing Aho-Corasick algorithm output: {str(e)}")
+                
+        return execution_time, positions_dict
+    except subprocess.TimeoutExpired:
+        logger.error(f"Aho-Corasick algorithm execution timed out for patterns: {', '.join(patterns)}")
+        return 0.0, {}
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Aho-Corasick algorithm execution failed: {str(e)}")
+        return 0.0, {}
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
+def run_search_algorithm_aho_corasick(executable_path: str, input_file: str, patterns: List[str]) -> tuple[float, Dict[str, List[int]]]:
+    try:
+        start_time = time.time()
+        proc = subprocess.run(
+            [executable_path, input_file] + patterns,
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=30  # Add timeout
+        )
+        execution_time = time.time() - start_time
+        
+        output = proc.stdout.strip()
+        positions_dict = {}
+        
+        # Parse output for each pattern
+        if output:
+            try:
+                for line in output.split('\n'):
+                    parts = line.split(":")
+                    if len(parts) == 2:
+                        pattern = parts[0].strip()
+                        positions = list(map(int, parts[1].strip().split()))
+                        positions_dict[pattern] = positions
+            except (IndexError, ValueError) as e:
+                logger.error(f"Error parsing Aho-Corasick algorithm output: {str(e)}")
+                
+        return execution_time, positions_dict
+    except subprocess.TimeoutExpired:
+        logger.error(f"Aho-Corasick algorithm execution timed out for patterns: {', '.join(patterns)}")
+        return 0.0, {}
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Aho-Corasick algorithm execution failed: {str(e)}")
+        return 0.0, {}
+
+# Adjustments in the /search endpoint
 @app.route('/search', methods=['POST'])
 def search():
     try:
@@ -191,10 +357,14 @@ def search():
         
         if algorithm != 'none':
             executable = os.path.join(app.config['BUILD_FOLDER'], ALGORITHM_EXECUTABLES[algorithm])
-            for pattern in patterns:
-                execution_time, positions = run_search_algorithm(executable, filepath, pattern)
-                calc_time += execution_time
-                results[pattern] = positions
+            if algorithm == 'Aho-Corasick':
+                execution_time, results = run_search_algorithm_aho_corasick(executable, filepath, patterns)
+                calc_time = execution_time
+            else:
+                for pattern in patterns:
+                    execution_time, positions = run_search_algorithm(executable, filepath, pattern)
+                    calc_time += execution_time
+                    results[pattern] = positions
 
         return jsonify({
             'results': results,
@@ -207,6 +377,7 @@ def search():
         logger.error(f"Error in search endpoint: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
 
+# Adjustments in the /analyze endpoint
 @app.route('/analyze', methods=['POST'])
 def analyze():
     try:
@@ -238,12 +409,17 @@ def analyze():
             executable = os.path.join(app.config['BUILD_FOLDER'], ALGORITHM_EXECUTABLES[algo])
             algo_time = 0
             
-            for pattern in patterns:
-                execution_time, positions = run_search_algorithm(executable, filepath, pattern)
-                algo_time += execution_time
-                
+            if algo == "Aho-Corasick":
+                execution_time, positions = run_search_algorithm_aho_corasick(executable, filepath, patterns)
+                algo_time = execution_time
                 if algo == best_algorithm:
-                    results[pattern] = positions
+                    results.update(positions)
+            else:
+                for pattern in patterns:
+                    execution_time, positions = run_search_algorithm(executable, filepath, pattern)
+                    algo_time += execution_time
+                    if algo == best_algorithm:
+                        results[pattern] = positions
                         
             performance_data[algo] = algo_time
 
