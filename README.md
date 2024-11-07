@@ -29,8 +29,8 @@ This project is a web-based tool for analyzing the performance of different patt
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/pattern-search-analysis.git
-   cd pattern-search-analysis
+   git clone https://github.com/anuranjani23/pattern-search-analysis-tool.git
+   cd pattern-search-analysis-tool
    ```
 
 2. **Compile the Algorithm Binaries**
@@ -49,6 +49,10 @@ This project is a web-based tool for analyzing the performance of different patt
 
    ```bash
    pip install flask
+   pip install werkzeug
+   pip install requests
+   pip install beautifulsoup4
+   pip install lxml
    ```
 
 4. **Run the Flask Server**
