@@ -1,7 +1,7 @@
 # Makefile for compiling the string search algorithms
 
-# Compiler to use
-CXX := g++
+# Compiler to use (specify g++-14 explicitly)
+CXX := g++-14
 
 # Compiler flags
 CXXFLAGS := -O2 -std=c++14
