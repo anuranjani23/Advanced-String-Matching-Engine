@@ -35,7 +35,7 @@ This project is a web-based tool for analyzing the performance of different patt
 
 2. **Compile the Algorithm Binaries**
 
-   Navigate to the root directory and run the `make` command to compile the C++ files in the `cpp/` directory and create binaries in the `bin/` folder.
+   Navigate to the root directory and run the `make` command to compile the C++ files in the `src/` directory and create binaries in the `bin/` folder.
 
    ```bash
    make
