@@ -80,16 +80,6 @@ def save_text_to_temp_file(text: str) -> str:
         raise
 
 def analyze_search_method(text: str, patterns: List[str]) -> str:
-    """
-    Analyzes text and patterns to recommend the most suitable string searching algorithm.
-    
-    Args:
-        text (str): The text to be searched
-        patterns (List[str]): List of patterns to search for
-    
-    Returns:
-        str: Name of the recommended search algorithm
-    """
     if not text or not patterns:
         return "Naive"
 
@@ -107,17 +97,6 @@ def analyze_search_method(text: str, patterns: List[str]) -> str:
 
     # Multiple patterns case
     if len(patterns) > 1:
-        # For long patterns with small alphabet, Boyer-Moore is often faster
-        # especially when patterns share suffixes
-        if (avg_pattern_length > 20 and 
-            pattern_alphabet_size < 30 and 
-            max_pattern_length / min_pattern_length < 3):  # Patterns are of similar length
-            return "Boyer-Moore"
-            
-        # Aho-Corasick is generally best for multiple patterns
-        # but not when patterns are very long and text is relatively short
-        if total_pattern_length > text_length * 0.1:
-            return "Boyer-Moore"
         return "Aho-Corasick"
 
     # Single pattern analysis
@@ -194,10 +173,10 @@ def analyze_search_method(text: str, patterns: List[str]) -> str:
         return "Z"
         
     # Default to Boyer-Moore for very long patterns
-    if pattern_length > 100:
+    if pattern_length > 110:
         return "Boyer-Moore"
         
-    # For everything else, use KMP as a reliable default
+    # For everything else, use KMP as a reliable default and fall-back option
     return "KMP"
 
 def generate_smart_patterns(text: str) -> List[str]:
@@ -377,7 +356,7 @@ def search():
         logger.error(f"Error in search endpoint: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
 
-# Adjustments in the /analyze endpoint
+
 @app.route('/analyze', methods=['POST'])
 def analyze():
     try:
