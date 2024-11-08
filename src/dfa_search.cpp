@@ -1,29 +1,41 @@
+// ->> Scroll to the bottom for the code and algorithm specifics.
+
 #include <iostream>
 #include <vector>
 #include <string>
 #include <fstream>
+#include <algorithm>
 
 using namespace std;
 
-#define num_of_char 256
+#define num_of_char 256  
+
 class OccurrenceFinder
 {
 private:
     string text;
-    void constructDFA(const string &pattern, vector<vector<int>> &dfa)
-    {
+
+    void constructDFA(const string &pattern, vector<vector<int>> &dfa, bool caseInsensitive) {
         int M = pattern.length();
-        int x = 0; 
+        int x = 0;
 
         dfa.assign(M + 1, vector<int>(num_of_char, 0));
-        dfa[0][pattern[0]] = 1;
 
-        for (int j = 1; j < M; ++j)
-        {
+        if (caseInsensitive) {
+            dfa[0][tolower(pattern[0])] = 1;
+        } else {
+            dfa[0][pattern[0]] = 1;
+        }
+
+        for (int j = 1; j < M; ++j) {
             for (int c = 0; c < num_of_char; ++c)
                 dfa[j][c] = dfa[x][c];
 
-            dfa[j][pattern[j]] = j + 1;
+            if (caseInsensitive) {
+                dfa[j][tolower(pattern[j])] = j + 1;
+            } else {
+                dfa[j][pattern[j]] = j + 1;
+            }
 
             x = dfa[x][pattern[j]];
         }
@@ -32,14 +44,22 @@ private:
             dfa[M][c] = dfa[x][c];
     }
 
-    vector<int> search(const string &pattern)
+    vector<int> search(const string &pattern, bool caseInsensitive)
     {
         vector<int> occurrence;
         int M = pattern.length();
         int N = text.length();
-        
+
+        if (caseInsensitive)
+        {
+            string lowerText = text;
+            transform(lowerText.begin(), lowerText.end(), lowerText.begin(), ::tolower);
+            text = lowerText;
+        }
+
         vector<vector<int>> dfa;
-        constructDFA(pattern, dfa);
+        constructDFA(pattern, dfa, caseInsensitive);
+
         int state = 0;
 
         for (int i = 0; i < N; i++)
@@ -47,23 +67,23 @@ private:
             state = dfa[state][text[i]];
             if (state == M)
             {
-                occurrence.push_back(i - M + 1); 
+                occurrence.push_back(i - M + 1);
             }
         }
 
-        return occurrence; 
+        return occurrence;
     }
 
 public:
- 
     OccurrenceFinder(const string &filename)
     {
         ifstream fileIn(filename);
         if (!fileIn.is_open())
         {
-            cerr << "Error in opening: " << filename << endl;
+            cerr << "Error in opening file: " << filename << endl;
             exit(EXIT_FAILURE);
         }
+
         text.assign((istreambuf_iterator<char>(fileIn)), istreambuf_iterator<char>());
         fileIn.close();
     }
@@ -85,21 +105,27 @@ public:
         }
     }
 
-    void findOccurrences(const string &pattern)
+    void findOccurrences(const string &pattern, bool caseInsensitive = false)
     {
-        vector<int> occurrences = search(pattern);  
-        display_output(pattern, occurrences);       
+        vector<int> occurrences = search(pattern, caseInsensitive);
+        display_output(pattern, occurrences);
     }
 };
 
 int main(int argc, char *argv[])
 {
     if (argc < 3)
+    {
+        cerr << "Usage: " << argv[0] << " <filename> <pattern> [--case-insensitive]" << endl;
         return 1;
+    }
 
-    OccurrenceFinder finder(argv[1]);
-    string pattern(argv[2]);
-    finder.findOccurrences(pattern);
+    string filename = argv[1];
+    string pattern = argv[2];
+    bool caseInsensitive = (argc == 4 && string(argv[3]) == "--case-insensitive");
+
+    OccurrenceFinder finder(filename);
+    finder.findOccurrences(pattern, caseInsensitive);
 
     return 0;
 }
